@@ -16,6 +16,9 @@ jobs:
     executor: arm64-executor
     steps:
       - checkout
+      - run:
+          name: System information
+          command: uname -a
       - node/install-packages:
           override-ci-command: npm install
           cache-path: ~/project/node_modules
