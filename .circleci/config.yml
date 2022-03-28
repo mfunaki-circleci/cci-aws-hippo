@@ -19,6 +19,9 @@ jobs:
       - run:
           name: System information
           command: uname -a
+      - run:
+          name: Create package-lock.json
+          command: npm install     
       - node/install-packages
       - run:
           name: Run tests
