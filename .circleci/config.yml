@@ -19,9 +19,7 @@ jobs:
       - run:
           name: System information
           command: uname -a
-      - node/install-packages:
-          override-ci-command: npm install
-          cache-path: ~/project/node_modules
+      - node/install-packages
       - run:
           name: Run tests
           command: npm run test
