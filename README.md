@@ -1,6 +1,6 @@
 # cci-aws-hippo
 
-
+[![CircleCI](https://circleci.com/gh/mayoct/cci-aws-hippo/tree/step02.svg?style=svg)](https://circleci.com/gh/mayoct/cci-aws-hippo/tree/step02)
 
 CircleCI を使い、Arm64 環境での(テスト、および) Docker コンテナイメージのビルドと、Amazon ECR 上にイメージの保存を行います。
 
