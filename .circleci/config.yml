@@ -2,9 +2,15 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.0.0
+  aws-cli: circleci/aws-cli@2.1.0
   aws-ecr: circleci/aws-ecr@7.3.0
+  aws-ecs: circleci/aws-ecs@2.2.1
+  cloudformation: frameio/cloudformation@0.25.1
 
 executors:
+  default:
+    docker:
+      - iage: cimg/python:3.10
   arm64-executor:
     machine:
       image: ubuntu-2004:202101-01
@@ -34,10 +40,40 @@ jobs:
       - aws-ecr/build-and-push-image:
           repo: $AWS_RESOURCE_NAME_PREFIX
 
+  update_task_definition:
+    executor: default
+    steps:
+      - checkout
+      - aws-cli/setup
+      - aws-ecs/update-task-definition:
+          family: 'arm64-hippo-task'
+          container-image-name-updates: 'container=hippo-arm64,tag=latest'
+
 workflows:
-  build_test_push:
+  setup_build_test_push_deploy:
     jobs:
-      - run_tests
+      - cloudformation/lint:
+          template: cf/fargate-hippo.yml
+      - cloudformation/changeset:
+          stack_name: hippo-vpc
+          template: cf/fargate-hippo.yml
+          args: --capabilities CAPABILITY_NAMED_IAM
+          requires:
+            cloudformation/lint
+      - cloudformation/deploy:
+          stack_name: hippo-vpc
+          template: cf/fargate-hippo.yml
+          args: --capabilities CAPABILITY_NAMED_IAM
+          requires:
+            - cloudformation/changeset
+
+      - run_tests:
+          requires:
+            - cloudformation/deploy
       - build_and_push_image:
           requires:
             - run_tests
+      - update_task_definition:
+          family: hippo-arm64-task
+          requires:
+            - build_and_push_image
