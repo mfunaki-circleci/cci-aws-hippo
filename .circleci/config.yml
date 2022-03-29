@@ -51,6 +51,20 @@ jobs:
           service-name: 'hippo-arm-service'
           family: 'hippo-arm-task'
           container-image-name-updates: 'container=hippo-arm-container,tag=latest'
+      - aws-ecs/run-task:
+          assign-public-ip: true
+          cluster: 'hippo-arm-cluster'
+
+  deploy_service_update:
+    executor: default
+    steps:
+      - checkout
+      - aws-cli/setup
+      - aws-ecs/deploy-service-update:
+          cluster-name: 'hippo-arm-cluster'
+          service-name: 'hippo-arm-service'
+          family: 'hippo-arm-task'
+          container-image-name-updates: 'container=hippo-arm-container,tag=latest'
 
 workflows:
   setup_build_test_push_deploy:
@@ -75,6 +89,6 @@ workflows:
       - build_and_push_image:
           requires:
             - run_tests
-      - update_service:
+      - deploy-service-update:
           requires:
             - build_and_push_image
