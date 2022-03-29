@@ -65,7 +65,7 @@ workflows:
       - cloudformation/deploy:
           stack_name: hippo-arm-stack
           template: cf/fargate-hippo.yml
-          args: --capabilities CAPABILITY_NAMED_IAM
+          args: --capabilities CAPABILITY_NAMED_IAM, --no-fail-on-empty-changeset
           requires:
             - cloudformation/changeset
       - run_tests:
