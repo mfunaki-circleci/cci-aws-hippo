@@ -89,6 +89,6 @@ workflows:
       - build_and_push_image:
           requires:
             - run_tests
-      - deploy-service-update:
+      - deploy_service_update:
           requires:
             - build_and_push_image
