@@ -8,9 +8,6 @@ orbs:
   cloudformation: frameio/cloudformation@0.25.1
 
 executors:
-  default:
-    docker:
-      - image: cimg/python:3.10
   arm64-executor:
     machine:
       image: ubuntu-2004:202101-01
@@ -42,7 +39,7 @@ jobs:
           tag: "${CIRCLE_SHA1},latest"
 
   update_service:
-    executor: default
+    executor: arm64-executor
     steps:
       - checkout
       - aws-cli/setup
@@ -54,17 +51,6 @@ jobs:
       - aws-ecs/run-task:
           assign-public-ip: true
           cluster: 'hippo-arm-cluster'
-
-  deploy_service_update:
-    executor: default
-    steps:
-      - checkout
-      - aws-cli/setup
-      - aws-ecs/deploy-service-update:
-          cluster-name: 'hippo-arm-cluster'
-          service-name: 'hippo-arm-service'
-          family: 'hippo-arm-task'
-          container-image-name-updates: 'container=hippo-arm-container,tag=latest'
 
 workflows:
   setup_build_test_push_deploy:
@@ -89,6 +75,6 @@ workflows:
       - build_and_push_image:
           requires:
             - run_tests
-      - deploy_service_update:
+      - update_service:
           requires:
             - build_and_push_image
