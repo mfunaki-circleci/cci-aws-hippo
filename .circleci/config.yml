@@ -43,16 +43,14 @@ jobs:
     steps:
       - checkout
       - aws-cli/setup
-      - aws-ecs/update-service:
-          cluster-name: 'hippo-arm-cluster'
-          service-name: 'hippo-arm-service'
+#      - aws-ecs/update-service:
+#          cluster-name: 'hippo-arm-cluster'
+#          service-name: 'hippo-arm-service'
+#          family: 'hippo-arm-task'
+#          container-image-name-updates: 'container=hippo-arm-container,tag=${CIRCLE_SHA1}'
+      - aws-ecs/update-task-definition:
           family: 'hippo-arm-task'
-          container-image-name-updates: 'container=hippo-arm-container,tag=latest'
-      - aws-ecs/run-task:
-          assign-public-ip: ENABLED
-          task-definition: 'hippo-arm-task:${CIRCLE_BUILD_NUM}'
-          cluster: 'hippo-arm-cluster'
-          subnet-ids: subnet-064e730a31ba6c0d5
+          container-image-name-updates: 'container=hippo-arm-container,tag=${CIRCLE_SHA1}'
 
 workflows:
   setup_build_test_push_deploy:
