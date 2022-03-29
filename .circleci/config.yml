@@ -10,7 +10,7 @@ orbs:
 executors:
   default:
     docker:
-      - iage: cimg/python:3.10
+      - image: cimg/python:3.10
   arm64-executor:
     machine:
       image: ubuntu-2004:202101-01
