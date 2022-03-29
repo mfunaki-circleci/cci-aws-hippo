@@ -4,7 +4,7 @@ Description:
 
 Parameters:
   ProjectName:
-    Default: hippo-arm64
+    Default: hippo-arm
     Type: String
 
   ECSSecurityGroupId:

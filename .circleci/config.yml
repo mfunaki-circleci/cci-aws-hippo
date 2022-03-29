@@ -40,14 +40,16 @@ jobs:
       - aws-ecr/build-and-push-image:
           repo: $AWS_RESOURCE_NAME_PREFIX
 
-  update_task_definition:
+  update_service:
     executor: default
     steps:
       - checkout
       - aws-cli/setup
-      - aws-ecs/update-task-definition:
-          family: 'arm64-hippo-task'
-          container-image-name-updates: 'container=hippo-arm64,tag=latest'
+      - aws-ecs/update-service:
+          cluster-name: 'hippo-arm-cluster'
+          service-name: 'hippo-arm-service'
+          family: 'hippo-arm-task'
+          container-image-name-updates: 'container=hippo-arm-container,tag=latest'
 
 workflows:
   setup_build_test_push_deploy:
@@ -55,13 +57,13 @@ workflows:
       - cloudformation/lint:
           template: cf/fargate-hippo.yml
       - cloudformation/changeset:
-          stack_name: hippo-vpc
+          stack_name: hippo-arm-stack
           template: cf/fargate-hippo.yml
           args: --capabilities CAPABILITY_NAMED_IAM
           requires:
             - cloudformation/lint
       - cloudformation/deploy:
-          stack_name: hippo-vpc
+          stack_name: hippo-arm-stack
           template: cf/fargate-hippo.yml
           args: --capabilities CAPABILITY_NAMED_IAM
           requires:
@@ -72,7 +74,6 @@ workflows:
       - build_and_push_image:
           requires:
             - run_tests
-      - update_task_definition:
-          family: hippo-arm64-task
+      - update_service:
           requires:
             - build_and_push_image
