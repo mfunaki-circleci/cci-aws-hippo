@@ -51,6 +51,7 @@ jobs:
       - aws-ecs/run-task:
           assign-public-ip: ENABLED
           cluster: 'hippo-arm-cluster'
+          task-definition: 'hippo-arm-task'
 
 workflows:
   setup_build_test_push_deploy:
