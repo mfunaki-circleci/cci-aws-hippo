@@ -49,7 +49,7 @@ jobs:
           family: 'hippo-arm-task'
           container-image-name-updates: 'container=hippo-arm-container,tag=latest'
       - aws-ecs/run-task:
-          assign-public-ip: true
+          assign-public-ip: ENABLED
           cluster: 'hippo-arm-cluster'
 
 workflows:
