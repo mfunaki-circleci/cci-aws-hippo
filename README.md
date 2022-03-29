@@ -1,6 +1,6 @@
 # cci-aws-hippo
 
-
+[![CircleCI](https://circleci.com/gh/mayoct/cci-aws-hippo/tree/step03.svg?style=svg)](https://circleci.com/gh/mayoct/cci-aws-hippo/tree/step03)
 
 AWS CloudFormation を使い、AWS Graviton 環境での AWS Fargate 実行環境を定義し、CircleCI を使って実環境を構築しています。
 
