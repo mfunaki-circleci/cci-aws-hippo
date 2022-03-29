@@ -59,14 +59,13 @@ workflows:
           template: cf/fargate-hippo.yml
           args: --capabilities CAPABILITY_NAMED_IAM
           requires:
-            cloudformation/lint
+            - cloudformation/lint
       - cloudformation/deploy:
           stack_name: hippo-vpc
           template: cf/fargate-hippo.yml
           args: --capabilities CAPABILITY_NAMED_IAM
           requires:
             - cloudformation/changeset
-
       - run_tests:
           requires:
             - cloudformation/deploy
