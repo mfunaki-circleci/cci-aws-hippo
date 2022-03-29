@@ -50,8 +50,9 @@ jobs:
           container-image-name-updates: 'container=hippo-arm-container,tag=latest'
       - aws-ecs/run-task:
           assign-public-ip: ENABLED
-          cluster: 'hippo-arm-cluster'
           task-definition: 'hippo-arm-task'
+          cluster: 'hippo-arm-cluster'
+          subnet-ids: subnet-064e730a31ba6c0d5
 
 workflows:
   setup_build_test_push_deploy:
