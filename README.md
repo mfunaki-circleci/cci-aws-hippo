@@ -2,9 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/mayoct/cci-aws-hippo/tree/step02.svg?style=svg)](https://circleci.com/gh/mayoct/cci-aws-hippo/tree/step02)
 
-CircleCI を使い、Arm64 環境での(テスト、および) Docker コンテナイメージのビルドと、Amazon ECR 上にイメージの保存を行います。
-
-以下の環境変数をプロジェクトに対して設定しています。
+なお、以下の環境変数をプロジェクトに対して設定しています(前ステップと同じ)。
 
 |Name|Value|説明|
 |----|-----|----|

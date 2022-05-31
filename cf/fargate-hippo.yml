@@ -1,0 +1,113 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description:
+  Fargate Creation for Baby Hippo Gram
+
+Parameters:
+  ProjectName:
+    Default: hippo-arm
+    Type: String
+
+  ECSSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+    Default: sg-0ed013324e5dd5c97
+
+  ECSSubnetId1:
+    Description: "ECS Subnet 1st"
+    Type: AWS::EC2::Subnet::Id
+    Default: subnet-064e730a31ba6c0d5
+
+  ECSClusterName:
+    Type: String
+    Default: "cluster"
+
+  ECSTaskName:
+    Type: String
+    Default: "task"
+
+  ECSTaskCPUArchitecture:
+    AllowedValues: [ ARM64, X86_64 ]
+    Type: String
+    Default: ARM64
+
+  ECSTaskOperatingSystemFamily:
+    AllowedValues:
+      - LINUX
+      - WINDOWS_SERVER_2004_CORE
+      - WINDOWS_SERVER_2016_FULL
+      - WINDOWS_SERVER_2019_CORE
+      - WINDOWS_SERVER_2019_FULL
+      - WINDOWS_SERVER_2022_CORE
+      - WINDOWS_SERVER_2022_FULL
+      - WINDOWS_SERVER_20H2_CORE
+    Type: String
+    Default: LINUX
+
+  ECSTaskCPUUnit:
+    AllowedValues: [ 256, 512, 1024, 2048, 4096 ]
+    Type: String
+    Default: 256
+
+  ECSTaskMemory:
+    AllowedValues: [ 256, 512, 1024, 2048, 4096 ]
+    Type: String
+    Default: 512
+
+  ECSContainerName:
+    Type: String
+    Default: "container"
+
+  ECSImageName:
+    Type: String
+    Default: "709967797311.dkr.ecr.ap-northeast-1.amazonaws.com/baby-hippo-gram:latest"
+
+  ECSServiceName:
+    Type: String
+    Default: "service"
+
+  ECSTaskDesiredCount:
+    Type: Number
+    Default: 1
+
+Resources:
+  ECSCluster:
+    Type: "AWS::ECS::Cluster"
+    Properties:
+      ClusterName: !Sub "${ProjectName}-${ECSClusterName}"
+
+  ECSTaskDefinition:
+    Type: "AWS::ECS::TaskDefinition"
+    Properties:
+      RuntimePlatform:
+        CpuArchitecture: !Ref ECSTaskCPUArchitecture
+        OperatingSystemFamily: !Ref ECSTaskOperatingSystemFamily
+      Cpu: !Ref ECSTaskCPUUnit
+      ExecutionRoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/ecsTaskExecutionRole"
+      Family: !Sub "${ProjectName}-${ECSTaskName}"
+      Memory: !Ref ECSTaskMemory
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ContainerDefinitions:
+        - Name: !Sub "${ProjectName}-${ECSContainerName}"
+          Image: !Ref ECSImageName
+          MemoryReservation: 128
+          PortMappings:
+            - HostPort: 80
+              Protocol: tcp
+              ContainerPort: 80
+
+  ECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref ECSCluster
+      DesiredCount: !Ref ECSTaskDesiredCount
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - !Ref ECSSecurityGroupId
+          Subnets:
+            - !Ref ECSSubnetId1
+      ServiceName: !Sub "${ProjectName}-${ECSServiceName}"
+      TaskDefinition: !Ref ECSTaskDefinition

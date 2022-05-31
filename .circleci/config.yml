@@ -2,7 +2,10 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.0.0
+  aws-cli: circleci/aws-cli@2.1.0
   aws-ecr: circleci/aws-ecr@7.3.0
+  aws-ecs: circleci/aws-ecs@2.2.1
+  cloudformation: frameio/cloudformation@0.25.1
 
 executors:
   arm64-executor:
@@ -33,11 +36,40 @@ jobs:
       - checkout
       - aws-ecr/build-and-push-image:
           repo: $AWS_RESOURCE_NAME_PREFIX
+          tag: "${CIRCLE_SHA1}"
+
+  update_task_definition:
+    executor: arm64-executor
+    steps:
+      - checkout
+      - aws-cli/setup
+      - aws-ecs/update-task-definition:
+          family: 'hippo-arm-task'
+          container-image-name-updates: 'container=hippo-arm-container,tag=${CIRCLE_SHA1}'
 
 workflows:
-  build_test_push:
+  setup_build_test_push_deploy:
     jobs:
-      - run_tests
+      - cloudformation/lint:
+          template: cf/fargate-hippo.yml
+      - cloudformation/changeset:
+          stack_name: hippo-arm-stack
+          template: cf/fargate-hippo.yml
+          args: --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset
+          requires:
+            - cloudformation/lint
+      - cloudformation/deploy:
+          stack_name: hippo-arm-stack
+          template: cf/fargate-hippo.yml
+          args: --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset
+          requires:
+            - cloudformation/changeset
+      - run_tests:
+          requires:
+            - cloudformation/deploy
       - build_and_push_image:
           requires:
             - run_tests
+      - update_task_definition:
+          requires:
+            - build_and_push_image
